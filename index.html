@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <script defer src="app.js"></script>
+    <script type="module" src="OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>A Game of Throns Characters</title>
+  </head>
+  <body>
+    <canvas id="bg"></canvas>
+    <h1>A Game of Thrones</h1>
+    
+    <form class="search-form">
+      <label>Name:</label>
+      <input id="nameSearch" type="text" />
+      <button>
+        Search
+        <div></div>
+      </button>
+    </form>
+    <button class="random-btn"> Random Character </button>
+      
 
-    <title>Document</title>
-</head>
-<body>
-    <h1>Dog Facts</h1>
-    <button class="get-fact">Get Dog fact</button>
-</body>
+  
+        <div class="facts-container"></div>
+
+   
+    <div class="picture-container"></div>
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
