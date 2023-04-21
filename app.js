@@ -7,16 +7,17 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const inputValue = input.value;
+  showPicture(`${inputValue}`);
 
   fetch(`https://anapioficeandfire.com/api/characters/?name=${inputValue}`)
     .then((response) => {
       return response.json();
     })
 
-    .then((data) => {
-      console.log(data.length);
-      if (data.length > 0) {
-        const character = data[0];
+    .then((searchCharacter) => {
+      console.log(searchCharacter);
+      if (searchCharacter.length > 0) {
+        const character = searchCharacter[0];
         factsContainer.innerHTML = "";
         const ul = document.createElement("ul");
         for (let prop in character) {
@@ -26,10 +27,10 @@ form.addEventListener("submit", (event) => {
             (prop == "culture" && character.culture !== "") ||
             (prop == "born" && character.born !== "") ||
             (prop == "died" && character.died !== "") ||
-            (prop == "titles" && character.titles !== "") ||
-            (prop == "aliases" && character.aliases !== "") ||
-            (prop == "tvSeries" && character.tvSeries !== "") ||
-            (prop == "playedBy" && character.playedBy !== "")
+            (prop == "titles" && character.titles[0] !== "") ||
+            (prop == "aliases" && character.aliases[0] !== "") ||
+            (prop == "tvSeries" && character.tvSeries[0] !== "") ||
+            (prop == "playedBy" && character.playedBy[0] !== "")
           ) {
             const li = document.createElement("li");
             const text = document.createTextNode(`${prop}: ${character[prop]}`);
@@ -39,7 +40,6 @@ form.addEventListener("submit", (event) => {
         }
         factsContainer.appendChild(ul);
       } else {
-      
         factsContainer.innerHTML = "No character found with that name.";
       }
 
@@ -48,25 +48,46 @@ form.addEventListener("submit", (event) => {
 });
 
 randomBtn.addEventListener("click", () => {
-  fetch(`https://anapioficeandfire.com/api/books/1`)
-    .then((response) => {
-      return response.json();
+  const Bookurls = [
+    `https://anapioficeandfire.com/api/books/1`,
+    `https://anapioficeandfire.com/api/books/2`,
+    `https://anapioficeandfire.com/api/books/3`,
+    `https://anapioficeandfire.com/api/books/4`,
+    `https://anapioficeandfire.com/api/books/5`,
+  ];
+  Promise.all(Bookurls.map((url) => fetch(url)))
+
+    .then((responses) => {
+      return Promise.all(responses.map((response) => response.json()));
     })
-    .then((data) => {
-      const randomNum = Math.floor(Math.random() * 435);
-      console.log(data.characters[0]);
-      console.log(data.characters.length);
-      console.log(randomNum);
-      console.log(data.characters[randomNum]);
-      let randomData = data.characters[randomNum];
+
+    .then((fiveBooksData) => {
+      console.log(fiveBooksData);
+      console.log(fiveBooksData[0]);
+
+      const allCharacter = fiveBooksData.map((obj) =>
+        obj.characters.concat(obj.povCharacters)
+      );
+      console.log(allCharacter);
+
+      const cominedArray = allCharacter.reduce((acc, arr) => {
+        return acc.concat(arr);
+      }, []);
+
+      console.log(cominedArray);
+      console.log(cominedArray.length);
+
+      ////////3572 total Characters,  3528 Characters, 44 povCharacters
+
+      const randomNum = Math.floor(Math.random() * 3573);
+      let randomData = cominedArray[randomNum];
       fetch(randomData)
         .then((response) => {
           return response.json();
         })
         .then((data) => {
-          //  if (data.length > 0) {
-          console.log(data.name);
           const character = data;
+          showPicture(`${character.name}`);
           factsContainer.innerHTML = "";
           const ul = document.createElement("ul");
           for (let prop in character) {
@@ -76,10 +97,10 @@ randomBtn.addEventListener("click", () => {
               (prop == "culture" && character.culture !== "") ||
               (prop == "born" && character.born !== "") ||
               (prop == "died" && character.died !== "") ||
-              (prop == "titles" && character.titles !== "") ||
-              (prop == "aliases" && character.aliases !== "") ||
-              (prop == "tvSeries" && character.tvSeries !== "") ||
-              (prop == "playedBy" && character.playedBy !== "")
+              (prop == "titles" && character.titles.length > 1) ||
+              (prop == "aliases" && character.aliases.length > 1) ||
+              (prop == "tvSeries" && character.tvSeries.length > 1) ||
+              (prop == "playedBy" && character.playedBy.length > 1)
             ) {
               const li = document.createElement("li");
               const text = document.createTextNode(
@@ -97,7 +118,7 @@ randomBtn.addEventListener("click", () => {
 
 function showPicture(characterName) {
   const apiKey = "7Sk_mL_3slbsideJsDCd_ZqOKixwc9Waz2uy854AAz4";
-  const url = `https://api.unsplash.com/search/photos?query=gameofthrone${characterName}&client_id=${apiKey}`;
+  const url = `https://api.unsplash.com/search/photos?query=${characterName}&client_id=${apiKey}`;
 
   fetch(url)
     .then((response) => response.json())
@@ -117,7 +138,7 @@ function showPicture(characterName) {
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-  1000,
+  75,
   window.innerWidth / window.innerHeight,
   0.1,
   10000
@@ -127,10 +148,10 @@ const renderer = new THREE.WebGLRenderer({
 });
 
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight / 2);
+renderer.setSize(window.innerWidth + 450, (window.innerHeight / 2.5) + 200);
 camera.position.setX(0);
 camera.position.setY(0);
-camera.position.setZ(50);
+camera.position.setZ(0);
 
 renderer.render(scene, camera);
 const canvas = document.querySelector("#bg");
@@ -162,35 +183,142 @@ scene.add(pointLight);
 const lightHelper = new THREE.PointLightHelper(pointLight);
 const gridHelper = new THREE.GridHelper(2000, 50);
 
-scene.add(lightHelper, gridHelper);
 scene.background = ringpic;
 let torusRotationX = 0;
 let torusRotationY = 0;
 let torusRotationZ = 0;
 
 function animate() {
-  // Call the animate function recursively on each frame
   requestAnimationFrame(animate);
 
-  // Update the torus rotation on each frame
   torusRotationX += 0.01;
   torusRotationY += 0.01;
   torusRotationZ += 0.01;
   torus.rotation.set(torusRotationX, torusRotationY, torusRotationZ);
 
-  // Render the scene with the updated camera and torus position
   renderer.render(scene, camera);
 }
 
 animate();
 
-// const toggleButton = document.createElement("button");
-// toggleButton.textContent = "Toggle Torus";
+// The toggle button
+const t1 = document.createElement("button");
+t1.textContent = "Toggle Torus";
+t1.className = "t1Btn";
+document.body.appendChild(t1);
+const t2 = document.createElement("div");
+t1.appendChild(t2);
+t1.addEventListener("click", () => {
+  torus.visible = !torus.visible;
+});
 
-// // Add the button to the DOM
-// document.body.appendChild(toggleButton);
+const mapContainer = document.querySelector(".map-container");
+const toggleButton = document.querySelector(".map");
 
-// // Add an event listener to the button that toggles the visibility of the torus
-// toggleButton.addEventListener("click", () => {
-//   torus.visible = !torus.visible;
-// });
+toggleButton.addEventListener("click", () => {
+  mapContainer.classList.toggle("hidden");
+  console.log("click");
+});
+
+const housefact = document.querySelector(".housefact-container");
+const select = document.querySelector("select");
+select.addEventListener("change", (event) => {
+  const selectedHouse = event.target.value;
+  console.log(`You selected ${selectedHouse}`);
+  if (selectedHouse === "empty") {
+    housefact.innerHTML = "";
+  }
+
+  fetch("https://anapioficeandfire.com/api/houses/")
+    .then((response) => {
+      return response.json();
+    })
+    .then((housesData) => {
+      for (let i = 0; i < housesData.length; i++) {
+        if (housesData[i].name === selectedHouse) {
+          const house = housesData[i];
+          const ul = document.createElement("ul");
+          console.log(house);
+          for (const [key, value] of Object.entries(house)) {
+            if (
+              key !== "url" &&
+              value !== "" &&
+              value.length > 1 &&
+              value.indexOf("http") === -1 &&
+              value[0].indexOf("http") === -1
+            ) {
+              const li = document.createElement("li");
+              const text = document.createTextNode(`${key}: ${value}`);
+              li.appendChild(text);
+              ul.appendChild(li);
+            }
+          }
+
+          const founderValue = house.founder;
+          if (founderValue.indexOf("http") === 0) {
+            fetch(founderValue)
+              .then((res) => {
+                return res.json();
+              })
+              .then((founderData) => {
+                const founderName = founderData.name;
+                const li = document.createElement("li");
+                const text = document.createTextNode(`founder :${founderName}`);
+                li.appendChild(text);
+                ul.appendChild(li);
+              });
+          }
+          const currentLord = house.currentLord;
+          if (currentLord.indexOf("http") === 0) {
+            fetch(currentLord)
+              .then((res) => {
+                return res.json();
+              })
+              .then((founderData) => {
+                const founderName = founderData.name;
+                const li = document.createElement("li");
+                const text = document.createTextNode(
+                  `current Lord :${founderName}`
+                );
+                li.appendChild(text);
+                ul.appendChild(li);
+              });
+          }
+          const overLord = house.overlord;
+          if (overLord.indexOf("http") === 0) {
+            fetch(overLord)
+              .then((res) => {
+                return res.json();
+              })
+              .then((founderData) => {
+                const founderName = founderData.name;
+                const li = document.createElement("li");
+                const text = document.createTextNode(
+                  `overlord :${founderName}`
+                );
+                li.appendChild(text);
+                ul.appendChild(li);
+              });
+          }
+          const swornMembers = house.swornMembers;
+          if (swornMembers.length > 1) {
+            Promise.all(
+              swornMembers.map((url) => fetch(url).then((res) => res.json()))
+            ).then((swornMembersData) => {
+              const names = swornMembersData.map((member) => member.name);
+              const li = document.createElement("li");
+              const text = document.createTextNode(
+                `swornMembers: ${names.join(", ")}`
+              );
+              li.appendChild(text);
+              ul.appendChild(li);
+            });
+          }
+
+          const housefact = document.querySelector(".housefact-container");
+          housefact.innerHTML = "";
+          housefact.appendChild(ul);
+        }
+      }
+    });
+});

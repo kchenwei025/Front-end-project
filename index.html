@@ -5,30 +5,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <script type="module" src="OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <title>A Game of Throns Characters</title>
+    <script type="module" src="app.js"></script>
+    <title>Game of Thrones</title>
   </head>
   <body>
-    <canvas id="bg"></canvas>
-    <h1>A Game of Thrones</h1>
     
+    <canvas id="bg"></canvas>
+    
+    <h1>Game of Thrones</h1>
+    <div class="form-container">
     <form class="search-form">
       <label>Name:</label>
       <input id="nameSearch" type="text" />
-      <button>
+      <button class="Search">
         Search
         <div></div>
       </button>
+      <select>
+        <option value="empty">Select House</option>
+        <option value="House Algood">House Algood</option>
+        <option value="House Allyrion of Godsgrace">House ALLyrion of Godsgrace</option>
+        <option value="House Amber">House Amber</option>
+        <option value="House Ambrose">House Ambrose</option>
+        <option value="House Appleton of Appleton">House Appleton of Appleton</option>
+        <option value="House Arryn of Gulltown">House Arryn of Gulltown</option>
+        <option value="House Arryn of the Eyrie">House Arryn of the Eyrie</option>
+        <option value="House Ashford of Ashford">House Ashford of Ashford</option>
+        <option value="House Ashwood">House Ashwood</option>
+        <option value="House Baelish of Harrenhal">House Baelish of Harrenhal</option>
+       
+      </select>
+      <div class="housefact-container"> 
+    </div>
     </form>
-    <button class="random-btn"> Random Character </button>
-      
+      </div>
 
-  
-        <div class="facts-container"></div>
-
-   
+    <button class="random-btn">Random Character   <div></div></button>  
+    <div class="facts-container"></div>
+    <button class="map">Map of Westeros <div></div></button>
+    <div class="map-container hidden">      
+    <img src="map.jpg" alt="Map of Westeros" />
+    </div>
     <div class="picture-container"></div>
-    <script type="module" src="app.js"></script>
+     
   </body>
 </html>
